@@ -16,12 +16,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
     origin: function (origin, callback) {
 
-        const allowedOrigins = [
-            'https://instarbon.vercel.app',
-            'https://instarbon.vercel.app/',
-            'http://localhost:3000',
-            'http://localhost:3000/'
-        ];
+        const allowedOrigins = process.env.FRONTEND_URL ?? 'https://resturant-management-system-ruddy.vercel.app'
 
         if (!origin) {
             return callback(null, true);
