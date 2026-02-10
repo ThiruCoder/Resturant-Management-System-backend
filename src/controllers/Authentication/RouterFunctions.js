@@ -3,6 +3,14 @@ import { User } from '../../models/UserModel.js'
 import redisClient from '../../utils/Redis_client.js';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../../utils/JWT_Utilities.js';
 
+// const COOKIE_OPTIONS = {
+//   httpOnly: true,
+//   secure: true,
+//   sameSite: 'None',
+//   path: '/',
+//   maxAge: 7 * 24 * 60 * 60 * 1000,
+// };
+
 const RegisterController = async (req, res, next) => {
     try {
         const { email, password, fullName, deviceId } = req.body;
@@ -135,7 +143,7 @@ const LoginController = async (req, res, next) => {
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'None',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
