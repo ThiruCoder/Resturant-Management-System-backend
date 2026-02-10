@@ -6,7 +6,7 @@ dotenv.config();
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 
 const redisConfig = {
-    url: `redis://:${REDIS_PASSWORD}@redis-18472.c246.us-east-1-4.ec2.cloud.redislabs.com:18472`,
+    url: `redis://:${REDIS_PASSWORD}@redis-14843.c246.us-east-1-4.ec2.cloud.redislabs.com:14843`,
     socket: {
         reconnectStrategy: (retries) => {
             if (retries > 10) {
@@ -18,8 +18,6 @@ const redisConfig = {
         keepAlive: 5000
     }
 };
-
-console.log('Redis URL:', redisConfig.url.replace(/:([^:@]+)@/, ':****@'));
 
 // Create the client
 let redisClient = null;
