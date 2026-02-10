@@ -3,13 +3,13 @@ import { User } from '../../models/UserModel.js'
 import redisClient from '../../utils/Redis_client.js';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../../utils/JWT_Utilities.js';
 
-// const COOKIE_OPTIONS = {
-//   httpOnly: true,
-//   secure: true,
-//   sameSite: 'None',
-//   path: '/',
-//   maxAge: 7 * 24 * 60 * 60 * 1000,
-// };
+const COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+};
 
 const RegisterController = async (req, res, next) => {
     try {
@@ -140,12 +140,7 @@ const LoginController = async (req, res, next) => {
             { EX: 7 * 24 * 60 * 60 }
         );
 
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'None',
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
+        res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
 
         const userResponse = {
             id: user._id,
@@ -181,11 +176,7 @@ const LogOutController = async (req, res, next) => {
     try {
         const decode = verifyRefreshToken(refreshToken);
         await redisClient.del(`refresh:${decode.userId}:${decode.deviceId}`);
-        res.clearCookie('refreshToken', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none'
-        });
+        res.clearCookie('refreshToken', COOKIE_OPTIONS);
         return res.status(204).json({
             message: "Successfully logged out!",
             success: false
