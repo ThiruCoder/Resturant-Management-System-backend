@@ -94,6 +94,7 @@ app.use((err, req, res, next) => {
     return res.status(statusCode).json({
         status: 'error',
         success: false,
+        err,
         message,
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     })

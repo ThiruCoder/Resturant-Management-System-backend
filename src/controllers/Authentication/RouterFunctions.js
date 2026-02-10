@@ -134,11 +134,11 @@ const LoginController = async (req, res, next) => {
         const accessToken = signAccessToken(payload);
         const refreshToken = signRefreshToken(payload);
 
-        await redisClient.set(
-            `refresh:${user._id}:${deviceId}`,
-            refreshToken,
-            { EX: 7 * 24 * 60 * 60 }
-        );
+        try {
+            await redisClient.set(`refresh:${user._id}:${deviceId}`, refreshToken, { EX: 7 * 24 * 60 * 60 });
+        } catch (err) {
+            console.error('Redis write failed:', err.message);
+        }
 
         res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
 
