@@ -51,18 +51,13 @@ const RegisterController = async (req, res, next) => {
         const accessToken = signAccessToken(payload);
         const refreshToken = signRefreshToken(payload);
 
-        await redisClient.set(
-            `refresh:${user._id}:${deviceId}`,
-            refreshToken,
-            { EX: 7 * 24 * 60 * 60 }
-        );
+        try {
+            await redisClient.set(`refresh:${user._id}:${deviceId}`, refreshToken, { EX: 7 * 24 * 60 * 60 });
+        } catch (err) {
+            console.error('Redis write failed:', err.message);
+        }
 
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
+        res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
 
         const userResponse = {
             id: user._id,
@@ -168,19 +163,18 @@ const LoginController = async (req, res, next) => {
 const LogOutController = async (req, res, next) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-        return res.status(204).json({
-            message: "Successfully logged out!",
-            success: false
-        })
+        return res.status(204).json({ message: 'Successfully logged out!', success: false });
     }
     try {
         const decode = verifyRefreshToken(refreshToken);
-        await redisClient.del(`refresh:${decode.userId}:${decode.deviceId}`);
+        try {
+            await redisClient.del(`refresh:${decode.userId}:${decode.deviceId}`);
+        } catch (err) {
+            console.error('Redis delete failed:', err.message);
+        }
+
         res.clearCookie('refreshToken', COOKIE_OPTIONS);
-        return res.status(204).json({
-            message: "Successfully logged out!",
-            success: false
-        })
+        return res.status(204).json({ message: 'Successfully logged out!', success: false });
     } catch (error) {
         next(error)
     }
